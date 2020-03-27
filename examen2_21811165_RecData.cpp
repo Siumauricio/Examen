@@ -1,7 +1,8 @@
-#include "RecData.h"
+#include "examen2_21811165_RecData.h"
 #include <iomanip>
 #include <fstream>
 #include <vector>
+#include <string>
 using namespace std;
 #pragma warning(disable: 4996)
 RecData::RecData (){
@@ -15,40 +16,38 @@ RecData::RecData (){
 }
 
 void RecData::Pack () {
-	size_t prevlen = 11;
-	string padded = string ((10 - strlen (Codigo)), '0').append (Codigo);
-	
-	strcat (BUFFER, padded.c_str ());
+	char a[9] ;
+	size_t prevlen = 0;
+
+	sprintf (BUFFER, "%08s", Codigo);
 	strcat (BUFFER, ",");
 
-	prevlen += strlen (Nombres) + 1;
 	strcat (BUFFER, Nombres);
 	strcat (BUFFER, ",");
 
-	prevlen += strlen (Apellidos) + 1;
+
 	strcat (BUFFER, Apellidos);
 	strcat (BUFFER, ",");
 
-	prevlen += strlen (Departamento) + 1;
 	strcat (BUFFER, Departamento);
 	strcat (BUFFER, ",");
 
-	prevlen += strlen (Edad) + 1;
 	strcat (BUFFER, Edad);
 	strcat (BUFFER, ",");
 
-	prevlen += strlen (Sueldo) + 1;
+
 	strcat (BUFFER, Sueldo);
 	strcat (BUFFER, ",");
 
-	memset (BUFFER + prevlen, '*', sizeof (BUFFER) - prevlen);
+	//cout << BUFFER << endl;
+
+	memset (BUFFER + strlen(BUFFER), '*', sizeof (BUFFER) - strlen (BUFFER));
 	*(BUFFER + sizeof (BUFFER)) = '\0';
 	//cout << BUFFER << endl;
 
 }
 
 void RecData::UnPack () {
-
 
 	char* token = BUFFER;
 
@@ -82,6 +81,7 @@ int DataFile::Add () {
 
 	cout << "Codigo :";
 	cin >> r.Codigo;
+	
 	cout << "Nombres: ";
 	cin >> r.Nombres;
 	cout << "Apellidos: ";
@@ -95,19 +95,24 @@ int DataFile::Add () {
 	r.Pack ();
 	file << r.BUFFER << endl;
 	file.close ();
+
 	return -1;
 }
 
 void DataFile::Find (string nombre) {
 	ifstream file ("Archivo.txt");
-	while (1) {
-		file.read (r.BUFFER, 125);
+	while (!file.eof ()) {
+	
+		string palabra;
+		getline (file, palabra);
+		strcpy (r.BUFFER, palabra.c_str ());
 		if (file.eof ()) {
 			cout << "Usuario no Encontrado!" << endl;
 			break;
 		}
 		r.UnPack ();
 		if (strcmp (r.Nombres, nombre.c_str ()) == 0&&r.Codigo[0]!='D') {
+			r.Print ();
 			cout << "Usuario Encontrado!" << endl;
 			return;
 		}
@@ -120,9 +125,11 @@ void DataFile::Remove (string nombre) {
 
 	ifstream file ("Archivo.txt");
 	ofstream fileW ("Archivo.txt", ios::in);
-	while (1) {
-		int posicion = file.tellg();
-		file.read (r.BUFFER, 125);
+	while (!file.eof ()) {
+		int posicion=file.tellg();
+		string palabra;
+		getline (file, palabra);
+		strcpy (r.BUFFER, palabra.c_str ());
 		if (file.eof ()) {
 			cout << "Usuario no Encontrado!" << endl;
 			break;
@@ -131,7 +138,7 @@ void DataFile::Remove (string nombre) {
 		if (strcmp (r.Nombres, nombre.c_str ()) == 0&&r.Codigo[0]!='D') {
 			fileW.seekp (posicion, ios::beg);
 			fileW.put ('D');
-			cout << "Usuario Encontrado!" << endl;
+			cout << "Registro Eliminado!" << endl;
 			return;
 		}
 	}
@@ -141,17 +148,40 @@ void DataFile::Remove (string nombre) {
 void DataFile::Compact () {
 	ifstream file ("Archivo.txt");
 	ofstream fileW ("Auxiliar.txt");
-	while (1) {
-		int posicion = file.tellg ();
-		file.read (r.BUFFER, 125);
+	while (!file.eof()) {
+		string palabra;
+		getline (file, palabra);
+		strcpy (r.BUFFER,palabra.c_str());
+		//file.read (r.BUFFER, 125);
 		if (file.eof ()) {
-			cout << "Usuario no Encontrado!" << endl;
+			//cout << "Usuario no Encontrado!" << endl;
 			break;
 		}
 		r.UnPack ();
 		if (r.Codigo[0] != 'D') {
-			fileW <<r.Codigo<<","<<r.Nombres<<"," <<r.Apellidos<< ","<<r.Departamento<<","<<r.Edad<< ","<<r.Sueldo<<","<<endl;
+			r.Pack ();
+			fileW <<r.BUFFER<<endl;
 		}
 	}
 	file.close ();
+}
+
+void DataFile::PrintAll () {
+	ifstream file ("Archivo.txt");
+	ofstream fileW ("Auxiliar.txt");
+	while (!file.eof ()) {
+		string palabra;
+		getline (file, palabra);
+		strcpy (r.BUFFER, palabra.c_str ());
+		if (file.eof ()) {
+			break;
+		}
+		r.UnPack ();
+		if (r.Codigo[0] != 'D') {
+			r.Print ();
+		}
+	}
+	file.close ();
+
+
 }
