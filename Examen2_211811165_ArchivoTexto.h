@@ -1,7 +1,6 @@
 #pragma once
 #include "Examen2_21811165_Registro.h"
 #include <string>
-#include <list>
 #ifndef ArchivoTexto_H
 #define ArchivoTexto_H
 using namespace std;
@@ -9,11 +8,10 @@ using namespace std;
 class ArchivoTexto {
 private:
     Registro r;
+    Registro r2;
 public:
     ArchivoTexto ();
     ~ArchivoTexto ();
-    void CargarLista ();
-    list<Registro>l;
     void EscribirRegistro ();
     void ImprimirRegistro ();
     Registro Buscar (string);
