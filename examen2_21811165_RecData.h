@@ -33,7 +33,7 @@ public:
 	void Find (string);
 	void Remove (string);
 	void Compact ();
-
+	void PrintAll ();
 };
 
 
